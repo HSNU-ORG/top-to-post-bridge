@@ -1,43 +1,16 @@
 import os
-import pymysql
-from dotenv import load_dotenv
+import requests
 
 
-def get_post(nth):
+def get_post():
     """This function get 1 post from old database.
 
-    Args:
-        nth (int): Nth post you want to get (like python, can use 0, -1 etc.)
-
     Returns:
-        A Tuple.
-        ex: (category, title ,content, link, file)
+        A json.
     """
-    load_dotenv()
+    r = requests.get(
+        url='https://wordpress.hsnu.org/wp-json/wp/v2/top?per_page=1')
 
-    connection = pymysql.connect(host=os.getenv("DB_HOST"),
-                                 port=8080,
-                                 user=os.getenv("DB_USER"),
-                                 password=os.getenv("DB_PASSWORD"),
-                                 db='hsnuwp',
-                                 charset='utf8')
+    print("Success on mysql.py")
 
-    # create cursor
-    cursor = connection.cursor()
-
-    # SQL
-    if(nth >= 0):
-        sql = f'SELECT msg_category, msg_title, msg_content, msg_link, msg_file \
-                FROM wp_btaeon_msgs ORDER BY msg_time ASC LIMIT {nth}, 1'
-    else:
-        sql = f'SELECT msg_category, msg_title, msg_content, msg_link, msg_file \
-                FROM wp_btaeon_msgs ORDER BY msg_time DESC LIMIT {abs(nth)-1}, 1'
-
-    # execute
-    cursor.execute(sql)
-
-    # disconnect
-    connection.close()
-
-    # all result
-    return cursor.fetchone()
+    return r.json()[0]

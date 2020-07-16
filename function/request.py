@@ -5,7 +5,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 
-def add_acf(id, genre, sub_genre_student, repeater_link=None):
+def add_acf(id, post):
     """
     This function send request to ACF REST API.
 
@@ -14,15 +14,8 @@ def add_acf(id, genre, sub_genre_student, repeater_link=None):
             The targe post id.
             ex: 24
 
-        genre (string):
-            Main genre of a post
-            ex:"學生"
-            op:"學生" / "教師" / "榮譽榜" / "講座及課程" / "競賽" / "微課程" / "菜單" / "來文"
-
-        repeater_link (list, optional):
-            The list consist of dictionaries.
-            ex: [{ "description": "Firefox", "url": "firefox.com" },
-                 { "description": "DuckDuckGo", "url": "ddg.gg" }]
+        obj (obj):
+            The post obj directly from rest api.
 
     Returns:
         success: {"status": "success", "response": (dict), "id": (str)}
@@ -35,9 +28,11 @@ def add_acf(id, genre, sub_genre_student, repeater_link=None):
     # data to post
     payload = {
         "fields": {
-            "genre": genre,
-            "sub_genre_student": sub_genre_student,
-            "repeater_link": repeater_link
+            "genre": post["acf"]["genre"],
+            "sub_genre_student": post["acf"]["sub_genre_student"],
+            "repeater_link": post["acf"]["repeater_link"],
+            "repeater_file": post["acf"]["repeater_file"],
+            "last_name": post["acf"]["last_name"]
         }
     }
 
@@ -46,7 +41,8 @@ def add_acf(id, genre, sub_genre_student, repeater_link=None):
                       json=payload, auth=HTTPBasicAuth(os.getenv("WORDPRESS_ACCOUNT"), os.getenv("WORDPRESS_PASSWORD")))
 
     # if success
-    if json.loads(r.content)["acf"]["genre"] == genre:
+    if json.loads(r.content)["acf"]["genre"] == post["acf"]["genre"]:
+        print("Success on add_acf()")
         return {"status": "success", "response": json.loads(r.content), "id": id}
     # if error
     else:
@@ -54,23 +50,15 @@ def add_acf(id, genre, sub_genre_student, repeater_link=None):
         return {"status": "error", "response": json.loads(r.content), "id": id}
 
 
-def add_post(title, content=None):
+def add_post(post):
     """This function send request to WP REST API.
 
 
     Args:
-        title (string):
-            The post title.
-            ex: "美好的標題"
-
-        content (string, optional):
-            The content.
-            ex: "精彩的內容"
-
+        post (obj): object directly from rest api.
 
     Returns:
-        success: {"status": "success", "id": (int)}
-
+        success: id (int)
 
     Raises:
         ValueError: If Wordpress return error
@@ -81,20 +69,22 @@ def add_post(title, content=None):
 
     # data to post
     payload = {
-        "title": title,
-        "content": content,
+        "title": post["title"]["rendered"],
+        "content": post["content"]["rendered"],
         "status": "publish"
     }
 
     # send request to add post (without metadata)
-    r = requests.post('https://wordpress.hsnu.org/index.php/wp-json/wp/v2/spost',
+    r = requests.post('https://wordpress.hsnu.org/wp-json/wp/v2/spost',
                       json=payload, auth=HTTPBasicAuth(os.getenv("WORDPRESS_ACCOUNT"), os.getenv("WORDPRESS_PASSWORD")))
 
     # if success
     if r.status_code == 201:
-        return {"status": "success", "id": json.loads(r.content)["id"]}
+        print("Success on add_post()")
+        return json.loads(r.content)["id"]
+
     # if error
     else:
         print(json.loads(r.content))
-        raise ValueError(f"ADD_POST_ERROR: There is error for post {title} in add_post() process. \
+        raise ValueError(f"ADD_POST_ERROR: There is error for post {json.loads(r.content)} in add_post() process. \
                             Error message from wp: {json.loads(r.content)}")
