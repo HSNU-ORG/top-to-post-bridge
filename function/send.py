@@ -28,11 +28,11 @@ def add_acf(id, post):
     # data to post
     payload = {
         "fields": {
-            "genre": post["acf"]["genre"],
-            "sub_genre_student": post["acf"]["sub_genre_student"],
-            "repeater_link": post["acf"]["repeater_link"],
-            "repeater_file": post["acf"]["repeater_file"],
-            "last_name": post["acf"]["last_name"]
+            "genre": post["genre"],
+            "sub_genre_student": post["sub_genre_student"],
+            "repeater_link": post["repeater_link"],
+            "repeater_file": post["repeater_file"],
+            "last_name": post["last_name"]
         }
     }
 
@@ -41,7 +41,7 @@ def add_acf(id, post):
                       json=payload, auth=HTTPBasicAuth(os.getenv("WORDPRESS_ACCOUNT"), os.getenv("WORDPRESS_PASSWORD")))
 
     # if success
-    if json.loads(r.content)["acf"]["genre"] == post["acf"]["genre"]:
+    if json.loads(r.content)["acf"]["genre"] == post["genre"]:
         print("Success on add_acf()")
         return {"status": "success", "response": json.loads(r.content), "id": id}
     # if error
@@ -69,8 +69,8 @@ def add_post(post):
 
     # data to post
     payload = {
-        "title": post["title"]["rendered"],
-        "content": post["content"]["rendered"],
+        "title": post["title"],
+        "content": post["content"],
         "status": "publish"
     }
 

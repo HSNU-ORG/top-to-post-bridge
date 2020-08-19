@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 
 
 def get_post():
@@ -8,9 +9,10 @@ def get_post():
     Returns:
         A json.
     """
+
     r = requests.get(
         url='https://wordpress.hsnu.org/wp-json/wp/v2/top?per_page=1')
 
-    print("Success on mysql.py")
+    print("Success on get_post")
 
     return r.json()[0]

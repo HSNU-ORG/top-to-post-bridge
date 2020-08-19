@@ -1,5 +1,5 @@
-from function.request import add_acf, add_post
-from function.mysql import get_post
+from function.send import add_acf, add_post
+from function.get import get_post
 from function.transform import update_post_format
 
 
@@ -7,6 +7,9 @@ def main(request):
 
     # get posts
     post = get_post()
+
+    # update post format
+    post = update_post_format(post)
 
     # post it
     try:
@@ -22,7 +25,3 @@ def main(request):
 
     except ValueError:
         pass
-
-
-if __name__ == "__main__":
-    main(1)
