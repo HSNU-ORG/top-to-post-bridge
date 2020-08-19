@@ -1,6 +1,5 @@
 import json
 import os
-from dotenv import load_dotenv
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -22,8 +21,6 @@ def add_acf(id, post):
         error: {"status": "error", "response": (dict), "id": (str)}
 
     """
-    # load .env
-    load_dotenv()
 
     # data to post
     payload = {
@@ -38,7 +35,7 @@ def add_acf(id, post):
 
     # send request to add metadata (ACF)
     r = requests.post('https://wordpress.hsnu.org/index.php/wp-json/acf/v3/spost/{id}'.format(id=id),
-                      json=payload, auth=HTTPBasicAuth(os.getenv("WORDPRESS_ACCOUNT"), os.getenv("WORDPRESS_PASSWORD")))
+                      json=payload, auth=HTTPBasicAuth("allenlin3024", "allen3024"))
 
     # if success
     if json.loads(r.content)["acf"]["genre"] == post["genre"]:
@@ -64,9 +61,6 @@ def add_post(post):
         ValueError: If Wordpress return error
     """
 
-    # load .env
-    load_dotenv()
-
     # data to post
     payload = {
         "title": post["title"],
@@ -76,7 +70,7 @@ def add_post(post):
 
     # send request to add post (without metadata)
     r = requests.post('https://wordpress.hsnu.org/wp-json/wp/v2/spost',
-                      json=payload, auth=HTTPBasicAuth(os.getenv("WORDPRESS_ACCOUNT"), os.getenv("WORDPRESS_PASSWORD")))
+                      json=payload, auth=HTTPBasicAuth("allenlin3024", "allen3024"))
 
     # if success
     if r.status_code == 201:
